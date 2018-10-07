@@ -1,6 +1,6 @@
 import numpy as np
 def training(feat,labelfile,cls):
-	feat=feat.reshape((-1,64))
+	feat=feat.reshape((-1,200))
 	
 	# feat.dump('featureVector.txt')
 	
@@ -11,7 +11,7 @@ def training(feat,labelfile,cls):
 	
 	if cls=='KNN':
 		from sklearn.neighbors import KNeighborsClassifier
-		clf = KNeighborsClassifier(n_neighbors=1)
+		clf = KNeighborsClassifier(n_neighbors=11)
 		clf.fit(feat, labels) 
 	
 		from sklearn.externals import joblib
@@ -37,6 +37,14 @@ def training(feat,labelfile,cls):
 
 		from sklearn.externals import joblib
 		joblib.dump(clf, 'clsfSVM.pkl')
+
+	elif cls=='TREE' :
+		from sklearn import tree
+		clf = tree.DecisionTreeClassifier()
+		clf = clf.fit(feat, labels)
+
+		from sklearn.externals import joblib
+		joblib.dump(clf, 'clsfTREE.pkl')
 
 	f.close()
 

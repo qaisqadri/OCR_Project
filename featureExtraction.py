@@ -25,9 +25,10 @@ def pickChars(path):
        ch=cv2.imread(pathchars+path+'//'+str(c)+".jpg",0)
        if ( ch is None ):
            break
+
        ht,wd=ch.shape
-       size=32
-       gridpixs=4
+       size=40
+       gridpixs=2
        if(ht>size):
            
            ch=image_resize(ch,height=size-2)
@@ -93,10 +94,11 @@ def pickChars(path):
        
        
        '''
+       # print(c)
        c=c+1
        
        
-    features=features.reshape((-1,8,8))
+    features=features.reshape((-1,20,20))
     
     return features
 

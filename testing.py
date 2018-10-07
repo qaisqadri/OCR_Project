@@ -8,8 +8,11 @@ def predict(features,classifier):
 		clf = joblib.load('clsfCNN.pkl')
 	elif classifier == 'SVM':
 		clf= joblib.load('clsfSVM.pkl')
+	elif classifier == 'TREE':
+		clf= joblib.load('clsfTREE.pkl')
+
 	print("classifier : ",classifier)
-	features=features.reshape((-1,64))
+	features=features.reshape((-1,200))
 	#print(features.shape)
 	result=clf.predict(features)
 	#print('Result : ')

@@ -1,27 +1,30 @@
 import segment
 import featureExtraction as fe
+# import featureExtraction2 as fe2
 import train
 import testing
 import numpy as np
 
-# obj=segment.Segmentation()
-# obj.doSegmentation('rti.png',size_thresh=150)
+
+obj=segment.Segmentation()
+# for x in range(0,21):
+# 	obj.doSegmentation(filename='source/out'+str(x)+'.jpg',size_thresh=250)
+obj.doSegmentation(filename='timg/i1.jpg',size_thresh=250)
+
 classifier='KNN' # can be KNN CNN or SVM
-# features=fe.pickChars(path='withspaces/finals') training data feature extraction
-features=np.load('featureVector.txt') # training data features
+features=fe.pickChars(path='training2') #training data feature extraction
+
+features=features.reshape((-1,200))
+	
+features.dump('features30s.txt')
+
+
+features=np.load('features30s.txt') # training data features
 print('train')
 
-train.training(features,'withspaces/labeldata.txt',classifier)
+train.training(features,'ll.txt',classifier)
 
 features2=fe.pickChars(path='chars')
 
 testing.predict(features2,classifier)
-
-
-
-
-
-
-
-
 

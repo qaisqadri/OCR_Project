@@ -8,6 +8,7 @@ class Segmentation:
     addht=0
     addwd=0
     def __init__(self):
+        self.cc=0
         '''if fn is not None:
             self.xmin,self.ymin=7000,7000
             self.xmax,self.ymax=0,0
@@ -32,8 +33,9 @@ class Segmentation:
         
             self.ax,self.ay=0,0
             self.imgOriginal=cv2.imread(self.filename)
-            #self.img=cv2.imread(self.filename,0)
-            self.img=cv2.cvtColor(self.imgOriginal, cv2.COLOR_BGR2GRAY)
+            self.img=cv2.imread(self.filename,0)
+            # self.img=cv2.cvtColor(self.imgOriginal, cv2.COLOR_BGR2GRAY)
+
             self.clone=self.img.copy()
             if self.img is None:
                 print("please pass a valid filename with extension ")
@@ -112,10 +114,11 @@ class Segmentation:
         # self.sx,self.sy= self.img.shape
         
         r,img = cv2.threshold(img,170,255,cv2.THRESH_BINARY_INV )
+
         kernel = np.ones((vb,hb),np.uint8)
         
-        # self = cv2.dilate(img,kernel,iterations = 1)
-        img = cv2.erode(img,kernel,iterations = 2)
+        img = cv2.dilate(img,kernel,iterations = 1)
+        # img = cv2.erode(img,kernel,iterations = 2)
         # self.img=cv2.Canny(self.img,100,200)
         
           
@@ -460,16 +463,18 @@ class Segmentation:
 
 
     def cropChars(self):
-        i=0
+        # i=self.cc
         for x in self.chars:
             #if( pixs[i][2]-pixs[i][0] > ax/1.5 and pixs[i][3]-pixs[i][1]< ay*5):
+            c=str(self.cc)
+
             if(x[1]==-1):
                 temp=np.zeros((30,30))+255
-                cv2.imwrite(self.pathchars+str(i)+".jpg",temp)
+                cv2.imwrite(self.pathchars+c+".jpg",temp)
                 
             if(x[1]!=-1):
-                self.crop(i,x[1]-1,x[3]+1,x[0]-1,x[2]+1)
-            i+=1
+                self.crop(c,x[1]-1,x[3]+1,x[0]-1,x[2]+1)
+            self.cc+=1
 
     def crop(self,c,y1,y2,x1,x2):
 
@@ -478,9 +483,10 @@ class Segmentation:
         #r,i = cv2.threshold(i,145,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
         i=cv2.cvtColor( i, cv2.COLOR_RGB2GRAY )
     
-        cv2.imwrite(self.pathchars+str(c)+".jpg",i)
+        cv2.imwrite(self.pathchars+c+".jpg",i)
     
     def doSegmentation(self,filename=None,size_thresh=None):
+        # self.cc=temp
         if size_thresh is None:
             Segmentation.threshold=55
         elif size_thresh is  not None:
@@ -493,7 +499,7 @@ class Segmentation:
         self.mode=False
         self.setData(filename)
         self.resize()
-        self.img=self.modifyImage(self.img,5,25)
+        self.img=self.modifyImage(self.img,1,75)
         i=self.sx
         j=self.sy
         #horizontal checking
@@ -517,7 +523,7 @@ class Segmentation:
         self.chars=np.array([],dtype=np.uint32)    
         # self.pixs=np.array([],dtype=np.uint32)
 
-        self.clone=self.modifyLines(self.clone,1,1)
+        self.clone=self.modifyLines(self.clone,11,1)
         self.mode=True
 
         for l in self.linepixs:
@@ -538,14 +544,9 @@ class Segmentation:
 
         print(self.chars.shape)
 
-
-
-
-
-
         self.findAvgSize()
         
-        self.findSpaces()
+        # self.findSpaces()
         self.cropChars()    
         # self.prepareReturn()
         # self.makerects()
@@ -555,4 +556,4 @@ class Segmentation:
 
 if __name__=="__main__":
     obj=Segmentation()
-    obj.doSegmentation("out30.jpg",size_thresh=150)
+    obj.doSegmentation("source/out19.jpg",size_thresh=150)
