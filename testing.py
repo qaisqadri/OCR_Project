@@ -10,9 +10,11 @@ def predict(features,classifier):
 		clf= joblib.load('clsfSVM.pkl')
 	elif classifier == 'TREE':
 		clf= joblib.load('clsfTREE.pkl')
+	elif classifier == 'NB':
+		clf = joblib.load('clsfNB.pkl')
 
 	print("classifier : ",classifier)
-	features=features.reshape((-1,200))
+	features=features.reshape((-1,100))
 	#print(features.shape)
 	result=clf.predict(features)
 	#print('Result : ')

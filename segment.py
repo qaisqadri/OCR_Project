@@ -28,7 +28,7 @@ class Segmentation:
             self.xmax,self.ymax=0,0
             self.pixs=np.array([],dtype=np.uint32)
             self.linepixs=np.array([],dtype='int32')
-            self.pathchars="//home//qais//OCRProject//chars//"
+            self.pathchars="//home//qais//OCRProject//training2//"
             self.filename=fn
         
             self.ax,self.ay=0,0
@@ -499,7 +499,7 @@ class Segmentation:
         self.mode=False
         self.setData(filename)
         self.resize()
-        self.img=self.modifyImage(self.img,1,75)
+        self.img=self.modifyImage(self.img,1,85)
         i=self.sx
         j=self.sy
         #horizontal checking
@@ -523,7 +523,7 @@ class Segmentation:
         self.chars=np.array([],dtype=np.uint32)    
         # self.pixs=np.array([],dtype=np.uint32)
 
-        self.clone=self.modifyLines(self.clone,11,1)
+        self.clone=self.modifyLines(self.clone,17,1)
         self.mode=True
 
         for l in self.linepixs:

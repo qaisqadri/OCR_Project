@@ -1,17 +1,28 @@
 import numpy as np
 def training(feat,labelfile,cls):
-	feat=feat.reshape((-1,200))
+	feat=feat.reshape((-1,100))
 	
 	# feat.dump('featureVector.txt')
 	
 	f=open(labelfile,'r')
 	labels=list(f.read())
+	f.close()
+
+
+	from random import shuffle
+
+	ind_list = [i for i in range(len(labels))]
+	shuffle(ind_list)
+	f  = feat[ind_list]
+	l = [labels[i] for i in ind_list]
 	
-	#print(len(labels))
+	feat=f
+	labels=l
+	print(feat[1].reshape(10,10),labels[1])
 	
 	if cls=='KNN':
 		from sklearn.neighbors import KNeighborsClassifier
-		clf = KNeighborsClassifier(n_neighbors=11)
+		clf = KNeighborsClassifier(n_neighbors=5)
 		clf.fit(feat, labels) 
 	
 		from sklearn.externals import joblib
@@ -46,5 +57,12 @@ def training(feat,labelfile,cls):
 		from sklearn.externals import joblib
 		joblib.dump(clf, 'clsfTREE.pkl')
 
-	f.close()
+	elif cls=='NB' :
+		from sklearn.naive_bayes import MultinomialNB
+		clf = MultinomialNB()
+		clf.fit(feat, labels)
+
+		from sklearn.externals import joblib
+		joblib.dump(clf, 'clsfNB.pkl')
+
 

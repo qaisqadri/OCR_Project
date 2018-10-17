@@ -2,12 +2,8 @@
 feature extraction
 
 '''
-
 import cv2
 import numpy as np
-
-
-
 
 pathchars="//home//qais//OCRProject//"
 
@@ -28,14 +24,14 @@ def pickChars(path):
 
        ht,wd=ch.shape
        size=40
-       gridpixs=2
+       gridpixs=4
        if(ht>size):
            
-           ch=image_resize(ch,height=size-2)
+           ch=image_resize(ch,height=size) #erased -2
            ht,wd=ch.shape
            
        if(wd>size):
-           ch=image_resize(ch,width=size-2)
+           ch=image_resize(ch,width=size)
            ht,wd=ch.shape
            
        r,ch=cv2.threshold(ch,200,255,cv2.THRESH_BINARY)
@@ -64,9 +60,9 @@ def pickChars(path):
                            gcount+=1
                              
                        j=j+1
-                       
                    
                    i=i+1
+
                features=np.append(features,[gcount]) #selected boxes are (h/5,w/5)'s
                #grids=np.append(grids,[(int(h)),(int(w))]) #selected boxes are (h/5,w/5)'s
                    
@@ -92,13 +88,13 @@ def pickChars(path):
        cv2.imwrite(pathchars+str(c)+"m.jpg",mask)
        cv2.imwrite(pathchars+str(c)+"m2.jpg",mask2)
        
-       
        '''
        # print(c)
+
+
        c=c+1
-       
-       
-    features=features.reshape((-1,20,20))
+              
+    features=features.reshape((-1,10,10))
     
     return features
 
