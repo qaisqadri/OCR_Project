@@ -4,9 +4,11 @@ faster rotation handling
 
 import numpy as np
 import cv2
+from wand.image import Image
+from wand.color import Color
 
-path="C:/Users/ABC/Desktop/project study/test/"
-filename="i1test.jpg"
+path="timg/"
+filename="rtest.jpg"
 img=cv2.imread(path+filename,0)
 
 ht,wd = img.shape
@@ -30,25 +32,28 @@ angles = np.arange(-limit, limit+delta, delta)
 scores = []
 for angle in angles:
     hist, score = find_score(bimg, angle)
+    #print(hist,score)
     scores.append(score)
 
 best_score = max(scores)
 best_angle = angles[scores.index(best_score)]
-print('Best angle: {}'+str(best_angle) + "  Best score : "+str(best_score))
+print('Best angle: '+str(best_angle) + "  Best score : "+str(best_score))
 
-M = cv2.getRotationMatrix2D((ht/2,wd/2),best_angle,1)
-img = cv2.warpAffine(img,M,(wd,ht))
+img=Image(filename=path+filename)
+img.rotate(-best_angle,background=Color('rgb(255,255,255)'))
+img.save(filename=path+'rotatedimage.jpg')
 
-
-
-img = cv2.adaptiveThreshold(img,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C ,\
-            cv2.THRESH_BINARY,13,7)
-
-
-img=cv2.GaussianBlur(img,(5,5),0)
-r,img = cv2.threshold(img,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
+# M = cv2.getRotationMatrix2D((ht/2,wd/2),best_angle,1)
+# img = cv2.warpAffine(img,M,(wd,ht))
 
 
-cv2.imwrite(path+"rotatedimage.jpg",img)
+# img = cv2.adaptiveThreshold(img,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C ,cv2.THRESH_BINARY,13,7)
+
+
+# img=cv2.GaussianBlur(img,(5,5),0)
+# r,img = cv2.threshold(img,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
+
+
+# cv2.imwrite(path+"rotatedimage.jpg",img)
 
 
