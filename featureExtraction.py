@@ -25,25 +25,46 @@ def pickChars(path):
        ht,wd=ch.shape
        size=40
        gridpixs=4
-       if(ht>size):
+       # trial code
+       ch=image_resize(ch,height=size) #erased -2
+       ht,wd=ch.shape
+       if wd>size:
+        ch=image_resize(ch,width=size) #erased -2
+       ht,wd=ch.shape
+       
+       # ch=image_resize(ch,width=size)
+       # ht,wd=ch.shape
+
+       #upto here
+
+       # if(ht>size):
            
-           ch=image_resize(ch,height=size) #erased -2
-           ht,wd=ch.shape
+       #     ch=image_resize(ch,height=size) #erased -2
+       #     ht,wd=ch.shape
            
-       if(wd>size):
-           ch=image_resize(ch,width=size)
-           ht,wd=ch.shape
+       # if(wd>size):
+       #     ch=image_resize(ch,width=size)
+       #     ht,wd=ch.shape
            
-       r,ch=cv2.threshold(ch,200,255,cv2.THRESH_BINARY)
+       # r,ch=cv2.threshold(ch,200,255,cv2.THRESH_BINARY)
+
+       #add blurring
+       # ch = cv2.adaptiveThreshold(ch,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C ,cv2.THRESH_BINARY,21,5)
+       r,ch=cv2.threshold(ch,200,255,cv2.THRESH_BINARY_INV)
+
+
        
        
-       mask=np.zeros((size,size))+255
+       mask=np.zeros((size,size))
        xs=int(((size)-ht)/2)
        yt=int(((size)-wd)/2)
        
        mask[xs:xs+ch.shape[0],yt:yt+ch.shape[1]] = ch
+       # cv2.imwrite('feout/'+str(c)+'.jpg',ch)
+
+       cv2.imwrite('feout/'+str(c)+'.jpg',mask)
        
-       
+       # print(str(c))
        # feature extraction
        h=0
        w=0
@@ -69,32 +90,42 @@ def pickChars(path):
                w=w+gridpixs
            
            h=h+gridpixs
-       '''
-       cv2.imwrite(pathchars+str(c)+"m.jpg",mask)
        
+       # cv2.imwrite(pathchars+path+'//'+str(c)+"m.jpg",mask)
        
-       mask=cv2.imread(pathchars+str(c)+"m.jpg")
-       a=0
-       mask2=np.zeros((size,size))+255
+       # print('m',str(c))
+       # mask=cv2.imread(pathchars+path+'//'+str(c)+"m.jpg")
+      
+       # r=0
+       # s=0
+       # for a in range(10):
+       #     for b in range(10):
+       #         cv2.rectangle(mask,(b+r,a+s),(b+r+gridpixs,a+s+gridpixs),(0,0,255),1) # 0,0  4,4 /  0,4  8,4 ,  
+       #         r=r+gridpixs
+               
+       #     s=s+gridpixs
+       #     r=0
+
        
-       grids=grids.reshape((-1,2))
-       
-       while(a < int(grids.size/2)):
-           cv2.rectangle(mask,(grids[a][1],(grids[a][0])),(grids[a][1]+5,(grids[a][0])+5),(0,0,255),1)
-           cv2.rectangle(mask2,(grids[a][1],(grids[a][0])),(grids[a][1]+5,(grids[a][0])+5),(0,255,55),1)
-           
-           a=a+1
-           
-       cv2.imwrite(pathchars+str(c)+"m.jpg",mask)
-       cv2.imwrite(pathchars+str(c)+"m2.jpg",mask2)
-       
-       '''
-       # print(c)
+       # r=0
+       # s=0
+       # a=0
+       # b=0
+     
+       # while b<40:
+       #  cv2.line(mask,(b,0),(b,39),(0,0,255),1)
+       #  cv2.line(mask,(0,b),(39,b),(0,0,255),1)
+        
+       #  b=b+4
+
+       # a=a+4
+       # cv2.imwrite(pathchars+path+'//'+str(c)+"m.jpg",mask)
+       # print('mm',str(c))
 
 
        c=c+1
               
-    features=features.reshape((-1,10,10))
+    features=features.reshape((-1,10*10))
     
     return features
 

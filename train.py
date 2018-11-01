@@ -1,6 +1,6 @@
 import numpy as np
 def training(feat,labelfile,cls):
-	feat=feat.reshape((-1,100))
+	# feat=feat.reshape((-1,100))
 	
 	# feat.dump('featureVector.txt')
 	
@@ -18,11 +18,12 @@ def training(feat,labelfile,cls):
 	
 	feat=f
 	labels=l
-	print(feat[1].reshape(10,10),labels[1])
+	print(feat[1],labels[1])
 	
 	if cls=='KNN':
 		from sklearn.neighbors import KNeighborsClassifier
-		clf = KNeighborsClassifier(n_neighbors=5)
+		clf = KNeighborsClassifier(n_neighbors=11)
+		# feats=feats.reshape(-1,40*40)
 		clf.fit(feat, labels) 
 	
 		from sklearn.externals import joblib
@@ -31,10 +32,20 @@ def training(feat,labelfile,cls):
 
 	elif cls=='CNN':
 		from sklearn.neural_network import MLPClassifier
-		X = feat
-		y = labels
-		clf = MLPClassifier(solver='lbfgs', alpha=1e-5, hidden_layer_sizes=(2, 2), random_state=1)
-		clf.fit(X, y)                         
+		X = feat/255.0
+		X = X.reshape(-1,40,40)
+		y = np.array(labels)
+		y = y.reshape(-1,1)
+
+		from sknn.mlp import Classifier, Convolution, Layer
+
+		clf = Classifier(
+		    layers=[
+		        Convolution("Rectifier", channels=89, kernel_shape=(3,3)),
+		        Layer("Softmax")],
+		    learning_rate=0.02,
+		    n_iter=25)
+		clf.fit(X, y)
 	
 		from sklearn.externals import joblib
 		joblib.dump(clf, 'clsfCNN.pkl')

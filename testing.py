@@ -14,7 +14,7 @@ def predict(features,classifier):
 		clf = joblib.load('clsfNB.pkl')
 
 	print("classifier : ",classifier)
-	features=features.reshape((-1,100))
+	# features=features.reshape((-1,100))
 	#print(features.shape)
 	result=clf.predict(features)
 	#print('Result : ')

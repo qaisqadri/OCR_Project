@@ -2,13 +2,15 @@
 import cv2
 import numpy as np
 import queue
+import rotation
 
 class Segmentation:
-    threshold=55
+    threshold=60
     addht=0
     addwd=0
     def __init__(self):
         self.cc=0
+        # self.aa=0
         '''if fn is not None:
             self.xmin,self.ymin=7000,7000
             self.xmax,self.ymax=0,0
@@ -28,7 +30,7 @@ class Segmentation:
             self.xmax,self.ymax=0,0
             self.pixs=np.array([],dtype=np.uint32)
             self.linepixs=np.array([],dtype='int32')
-            self.pathchars="//home//qais//OCRProject//training2//"
+            self.pathchars="//home//qais//OCRProject//chars//"
             self.filename=fn
         
             self.ax,self.ay=0,0
@@ -36,28 +38,28 @@ class Segmentation:
             self.img=cv2.imread(self.filename,0)
             # self.img=cv2.cvtColor(self.imgOriginal, cv2.COLOR_BGR2GRAY)
 
-            self.clone=self.img.copy()
+            
             if self.img is None:
                 print("please pass a valid filename with extension ")
                 exit()
-            
+            self.clone=self.img.copy()
             self.sx,self.sy=self.img.shape
         
     def resize(self):
         
         if self.sx>1000:
              
-            self.img=Segmentation.image_resize(self.img,height=1500)
-            self.imgOriginal=Segmentation.image_resize(self.imgOriginal,height=1500)
+            self.img=Segmentation.image_resize(self.img,height=1000)
+            self.imgOriginal=Segmentation.image_resize(self.imgOriginal,height=1000)
             self.clone=self.img.copy()
 
             self.sx,self.sy=self.img.shape
          
         
         if self.sy>1000:
-            print("hope this never gets executed")
-            self.img=Segmentation.image_resize(self.img,width=1500)
-            self.imgOriginal=Segmentation.image_resize(self.imgOriginal,width=1500)
+            # print("hope this never gets executed")
+            self.img=Segmentation.image_resize(self.img,width=1000)
+            self.imgOriginal=Segmentation.image_resize(self.imgOriginal,width=1000)
             self.clone=self.img.copy()
 
             self.sx,self.sy=self.img.shape
@@ -108,8 +110,7 @@ class Segmentation:
 
     def modifyLines(self,img,vb,hb):
         
-        # self.img = cv2.adaptiveThreshold(self.img,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C ,\
-        #         cv2.THRESH_BINARY,15,7)
+        # self.img = cv2.adaptiveThreshold(self.img,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C ,cv2.THRESH_BINARY,15,7)
         # r,self.img=cv2.threshold(self.img,75,255,cv2.THRESH_BINARY + cv2.THRESH_OTSU)
         # self.sx,self.sy= self.img.shape
         
@@ -170,12 +171,17 @@ class Segmentation:
             # segmenting lines
             self.xmin,self.ymin=img.shape
             self.xmax,self.ymax=0,0
+            sx=self.sx
+            sy=self.sy
         else:
             # segmenting chars
             self.xmin=self.linedim[0]
             self.xmax=self.linedim[2]
             self.ymin=self.linedim[3]
             self.ymax=self.linedim[1]
+
+            sx=self.linedim[2]+1
+            sy=self.sy
 
     
         q=queue.Queue()
@@ -193,7 +199,7 @@ class Segmentation:
             while( 1==1 ):
                 #print("1==1")
             
-                while( y+1<self.sy and img[x][y+1]==0):
+                while( y+1<sy and img[x][y+1]==0):
                     y=y+1
                     if(img[x][y]==0):
                         img[x][y]=50
@@ -203,7 +209,7 @@ class Segmentation:
                 if(y>self.ymax):
                     self.ymax=y
                 
-                while( y+1<self.sy and x+1 < self.sx and img[x+1][y+1]==0):
+                while( y+1<sy and x+1 < sx and img[x+1][y+1]==0):
                     y=y+1
                     x=x+1
                     if(img[x][y]==0):
@@ -245,7 +251,7 @@ class Segmentation:
                 if(self.xmin>x):
                     self.xmin=x
             
-                while(x-1>=0 and y+1<self.sy and img[x-1][y+1]==0):
+                while(x-1>=0 and y+1<sy and img[x-1][y+1]==0):
                     x=x-1
                     y=y+1
                     if(img[x][y]==0):
@@ -258,7 +264,7 @@ class Segmentation:
                 if(y>self.ymax):
                     self.ymax=y
             
-                while(x+1<self.sx and img[x+1][y]==0):
+                while(x+1<sx and img[x+1][y]==0):
                     x=x+1
                     if(img[x][y]==0):
                         img[x][y]=50
@@ -268,7 +274,7 @@ class Segmentation:
                 if(x>self.xmax):
                     self.xmax=x
                 
-                while(x+1<self.sx  and y-1 > 0 and img[x+1][y-1]==0):
+                while(x+1<sx  and y-1 > 0 and img[x+1][y-1]==0):
                     x=x+1
                     y=y-1
                     if(img[x][y]==0):
@@ -283,7 +289,16 @@ class Segmentation:
                 else:
                     x,y=q.get()
 
+            #     cv2.imshow('result',img)
+            #     cv2.waitKey(10)
+            
+            # cv2.destroyAllWindows()
+
                 # print(self.ymin,self.ymax)
+            if self.mode==True:
+                self.xmin=self.linedim[0]
+                self.xmax=self.linedim[2]
+
             self.pixs=np.append(self.pixs,[self.xmin,self.ymin,self.xmax,self.ymax])  
             # print(self.ymin,self.ymax)
         return img
@@ -321,7 +336,7 @@ class Segmentation:
         while(i < (self.pixs.size/4)-1 and (self.pixs.size/4) > 1):
             if ( abs(self.pixs[i][3]-self.pixs[i+1][1]) > self.ay*0.5 ):
                 #pixs=np.insert(pixs,i+1,[pixs[i][0],pixs[i][3]+1,pixs[i][2],5],axis=0)
-                print("space")
+                # print("space")
                 self.pixs=np.insert(self.pixs,i+1,[-1,-1,-1,-1],axis=0)
                 i=i+2
         
@@ -338,7 +353,7 @@ class Segmentation:
             if  ( pixs[i][2]-pixs[i][0] > Segmentation.threshold ):
                 pixs= np.delete(pixs, i,  axis=0)
                 i=i-1
-            elif ( pixs[i][2]-pixs[i][0] < 10 and pixs[i][3]-pixs[i][1] < 5 ):
+            elif ( pixs[i][2]-pixs[i][0] < 10 and pixs[i][3]-pixs[i][1] < 5 and self.mode == False):
                 pixs=np.delete(pixs,i,axis=0)
                 i=i-1
             i=i+1
@@ -352,7 +367,7 @@ class Segmentation:
             j=0
             while(j<i):
                 if(pixs[j][0] <= pixs[i][0] and pixs[j][2] >= pixs[i][2] and pixs[j][1]<=pixs[i][1] and pixs[j][3]<=pixs[i][3]):
-                    print("deleting : ",pixs[i])
+                    # print("deleting : ",pixs[i])
                     pixs=np.delete(pixs,i,axis=0)
 
                     i-=1
@@ -384,19 +399,47 @@ class Segmentation:
 
 
     def duplicateChars(self):
+        #lkxl
         i=0
         while(i<self.chars.size/4):
             j=i+1
-            while(j<i+2 and j < self.chars.size/4):
-                if( self.chars[j][1]>=self.chars[i][1] and self.chars[j][3]<=self.chars[i][3]):
-                    print("deleting : ",self.chars[i])
+            while(j<i+2 and j < self.chars.size/4 ):
+                # print(i,j)
+               
+                # remove overlapping
+                #         j-xmin  < i-xmax +1   and                   j-xamx > i-xmax
+                if ( self.chars[j][1] < self.chars[i][3] - 3 and self.chars[j][3] > self.chars[i][3] +1 and j > 0):
+                    self.chars[i][3] = self.chars[j][3]
+                    if self.chars[j][1]< self.chars[i][1] :
+                        self.chars[i][1] = self.chars[j][1]
                     self.chars=np.delete(self.chars,j,axis=0)
 
                     j-=1
-                       
+
                 j+=1
             
             i+=1
+
+        #kjkj
+        
+
+        i=0
+        while(i<self.chars.size/4):
+            j=i+1
+            while(j<i+2 and j < self.chars.size/4 ):
+
+                 # remove concentric
+                if( self.chars[j][1]>=self.chars[i][1] and self.chars[j][3]<=self.chars[i][3]):
+                    # print("deleting : ",self.chars[i])
+                    self.chars=np.delete(self.chars,j,axis=0)
+
+                    j-=1
+ 
+                j+=1
+            
+            i+=1
+
+
 
 
     def prepareReturn(self):
@@ -426,7 +469,7 @@ class Segmentation:
             self.pixs[i][3]=wd+Segmentation.addwd+Segmentation.addwd
 
             
-	    #code to fix pixs as actual x,y,h,w
+    	    #code to fix pixs as actual x,y,h,w
             a,b,c,d=self.pixs[i]
             self.pixs[i][0]=b   #x
             self.pixs[i][1]=a   #y
@@ -438,14 +481,15 @@ class Segmentation:
 
     def makerects(self):
         
-        for x in self.linepixs:
+        for x in self.chars:
             
             #cv2.rectangle(self.imgOriginal,(x[0],x[1]),(x[0]+x[2],x[1]+x[3]),(0,0,255),1)
             cv2.rectangle(self.imgOriginal,(x[1],x[0]),(x[3],x[2]),(0,0,255),1)
-            cv2.imshow("result",self.imgOriginal)
-            cv2.waitKey(50)
+            # cv2.imshow("result",self.imgOriginal)
+            # cv2.waitKey(50)
 
-        cv2.imwrite("out.png",self.imgOriginal)
+        cv2.imwrite("blobout.jpg",self.imgOriginal)
+        self.aa+=1
         print("de nazar")
         cv2.destroyAllWindows()
     
@@ -480,9 +524,10 @@ class Segmentation:
 
         
         i=self.imgOriginal[x1:x2,y1:y2]
-        #r,i = cv2.threshold(i,145,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
+        
         i=cv2.cvtColor( i, cv2.COLOR_RGB2GRAY )
-    
+
+        i = cv2.threshold(i,70,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)[1]
         cv2.imwrite(self.pathchars+c+".jpg",i)
     
     def doSegmentation(self,filename=None,size_thresh=None):
@@ -497,9 +542,10 @@ class Segmentation:
             print(filename)
             exit()
         self.mode=False
+        
         self.setData(filename)
         self.resize()
-        self.img=self.modifyImage(self.img,1,85)
+        self.img=self.modifyImage(self.img,3,85)
         i=self.sx
         j=self.sy
         #horizontal checking
@@ -515,7 +561,7 @@ class Segmentation:
             for y in range(0,j-2,1):
                 self.img=self.segments(self.img,x,y)
             
-          
+                        
         self.fixPix()
         # self.linepixs=self.pixs
         self.linepixs=self.selectSegments(self.pixs)
@@ -523,9 +569,9 @@ class Segmentation:
         self.chars=np.array([],dtype=np.uint32)    
         # self.pixs=np.array([],dtype=np.uint32)
 
-        self.clone=self.modifyLines(self.clone,17,1)
+        self.clone=self.modifyLines(self.clone,11,1)
         self.mode=True
-
+        # self.makerects()
         for l in self.linepixs:
             self.linedim=l
             self.pixs=np.array([],dtype=np.uint32)
@@ -536,6 +582,7 @@ class Segmentation:
                     self.clone=self.segments(self.clone,x,y)
             self.pixs=self.pixs.reshape((-1,4))
             self.pixs = self.pixs[self.pixs[:,1].argsort()]
+            # self.pixs=self.selectSegments(self.pixs)
             self.chars=np.append(self.chars,self.pixs)
 
 
@@ -556,4 +603,4 @@ class Segmentation:
 
 if __name__=="__main__":
     obj=Segmentation()
-    obj.doSegmentation("source/out19.jpg",size_thresh=150)
+    obj.doSegmentation("timg/rotatedimage.jpg",size_thresh=150)
