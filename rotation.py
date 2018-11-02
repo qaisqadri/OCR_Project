@@ -7,9 +7,6 @@ import cv2
 from wand.image import Image
 from wand.color import Color
 
-
-
-
 def find_score(arr, angle,wd,ht,bimg):
     #data = cv2.rotate(arr, angle, reshape=False, order=0)
     M = cv2.getRotationMatrix2D((wd/2,ht/2),angle,1)
@@ -32,8 +29,6 @@ def correct_it(filename):
 	ht,wd = img.shape
 	pix = img.flatten()
 	bimg= 1 - (pix.reshape(( ht, wd)) / 255.0)
-
-
 	
 	delta = 1
 	limit = 5
